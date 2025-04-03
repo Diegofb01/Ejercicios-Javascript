@@ -64,6 +64,7 @@ class SistemaEntregas {
         this.zonas = {};  
     }
 
+    //método que recibe por parámetro los valores nombre y x e y(para coordenadas) y comprueba si se cumplen las condiciones, en caso afirmativo crea una nueva zona, en caso negativo muestra error
     añadirZona(nombre, x, y) {
         if (this.zonas[nombre]) {
             throw new Error("La zona con este nombre ya existe");
@@ -77,21 +78,29 @@ class SistemaEntregas {
         };
     }
 
+    //método que inserta las ordenes según sus zonas
     insertarOrdenEnSuZona(orden) {
+        //ZonaCercana comienza en null debido a que aún no se ha hallado un resultado
         let zonaCercana = null;
+        //Cualquier número será menor a infinity y entonces el resultado adecuado sustituira a distanciaMínima
         let distanciaMinima = Infinity;
 
+        //Recorremos todas las zonas
         for (const zona in this.zonas) {
+            //se llama al método calcularDistancia para calcular la distancia entre el valor de la orden y el valor del centro de la zona
             const distancia = orden.calcularDistancia({
                 coordenadas: this.zonas[zona].centro
             });
+            //en caso de que la distancia obtenida sea menor que el valor de distanciaMínima, actualizamos. ZonaCercana se queda con el nombre de Zona y distanciaMínima se queda con el nuevo valor obtenido
             if (distancia < distanciaMinima) {
                 zonaCercana = zona;
                 distanciaMinima = distancia;
             }
         }
+        //Si hemos obtenido un valor para zonaCercana, se le agrega la orden a pedidos de la zona más cercana
         if (zonaCercana) {
             this.zonas[zonaCercana].pedidos.push(orden);
+        //En caso de que no se haya obtenido un valor para zonaCercana, se muestra un error
         } else {
             throw new Error("No se pudo asignar la orden a ninguna zona");
         }
@@ -99,18 +108,24 @@ class SistemaEntregas {
 
 //Método que muestra los pedidos por zona y los ordena por pedidosPrioritarios y pedidosEstandar
     mostrarPedidosPorZona() {
+        //en primer lugar se recorre las zonas de la lista Zonas para diferenciarlas. Ej: Zona Centro
         for (const zona in this.zonas) {
             console.log(`Zona "${zona}":`);
 
+            //se hace una variable para obtener todos los pedidos de zonas
             const pedidos = this.zonas[zona].pedidos;
+            //mediante función flecha se filtra por prioridad y se ordena por hora
             const pedidosPrioritarios = pedidos.filter(orden => orden.prioridad > 1).sort((a, b) => b.prioridad - a.prioridad || a.hora.localeCompare(b.hora));
+            //en este caso se toman los pedidos "descartados" por pedidosPrioritarios y se ordenan por hora
             const pedidosEstandar = pedidos.filter(orden => orden.prioridad === 1).sort((a, b) => a.hora.localeCompare(b.hora));
 
 
+            //se muestra como resultado los pedidos prioritarios mediante el siguiente mensaje
             pedidosPrioritarios.forEach(orden => {
                 console.log(`- ${orden.id} (Prioridad: ${orden.prioridad}, Propina: ${orden.propina}, Hora: ${orden.hora})`);
             });
 
+            //se muestra como resultado los pedidos estandar mediante el siguiente mensaje
             pedidosEstandar.forEach(orden => {
                 console.log(`- ${orden.id} (Hora: ${orden.hora})`);
             });
