@@ -82,8 +82,21 @@ class SistemaEntregas {
     insertarOrdenEnSuZona(orden) {
         //ZonaCercana comienza en null debido a que aún no se ha hallado un resultado
         let zonaCercana = null;
-        //Cualquier número será menor a infinity y entonces el resultado adecuado sustituira a distanciaMínima
-        let distanciaMinima = Infinity;
+        //Lo declaro como nulo para luego agregarle el resultado correcto
+        let distanciaMinima = null;
+
+        //declaro una constante para asignar el array de zonas
+        const zonasDiccionario =Object.entries(this.zonas);
+
+        //si el array tiene contenido
+        if(zonasDiccionario.length>0){
+            //a zonaCercana le asigno el primer elemento del array
+            zonaCercana = zonasDiccionario[0][0];
+            //asigno la distancia minima con el primer elemento del array
+            distanciaMinima = orden.calcularDistancia({
+                coordenadas:zonasDiccionario[0][1].centro
+            });
+        }
 
         //Recorremos todas las zonas
         for (const zona in this.zonas) {
